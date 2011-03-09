@@ -1,0 +1,107 @@
+<html>
+<script>
+
+var apps = {};
+
+var receiveAppList = function(apps) {
+    for (var i in apps) {
+        var app = apps[i];
+        window.apps[app.id] = app;
+    }
+};
+
+function buildRegex(input) {
+    regex = '.*'
+    for (var i in input) {
+	regex += '(' + input.charAt(i) + ').*';
+    }
+    
+    return new RegExp(regex, 'i');
+}
+
+function insertMatches(matches, name) {
+    var styledName = '';
+    var nextChar = 0;
+    
+    for (var i in matches) {
+	var match = matches[i];
+	var remainder = name.substring(nextChar);
+	var matchIndex = remainder.indexOf(match) + nextChar;
+	styledName += name.substring(nextChar, matchIndex);
+	nextChar = matchIndex + match.length;
+	styledName += '<match>';
+	styledName += name.substring(matchIndex, nextChar);
+	styledName += '</match>';
+    }
+
+    return styledName + name.substring(nextChar);
+}
+
+function buildSuggestion(matches, app) {
+    var description = insertMatches(matches, app.name);
+
+    if (app.description != '') {
+	description += '<dim> - ' + app.description + '</dim>';
+    }
+    
+    suggestions.push( 
+        {
+	    "content": app.name,
+	    "description" : description
+        }
+    );
+
+}
+
+var inputChanged = function(input, suggestionsCallback) {
+    if (input == "") {
+        return;
+    }
+    
+    var suggestions = [];
+    var regex = buildRegex(input);
+    
+    for (var i in apps) {
+        var matches = app.name.match(regex);
+        if (matches != null) {
+	    suggestions.push(buildSuggestion(matches.slice(1), apps[i]));
+	}
+    }
+    
+    if (suggestions.length > 0) {
+        chrome.omnibox.setDefaultSuggestion(
+            { description: suggestions[0].description }
+	);
+        
+    }
+
+    suggestionsCallback(suggestions);
+};
+
+function open(url) {
+    chrome.tabs.create(
+	{
+	    'url': app.optionsUrl
+	}
+    );
+}
+
+var inputEntered = function(name) {
+    for (var i in apps) {
+        var app = apps[i];
+
+        if (app.name.toLowerCase() == name.toLowerCase()) {
+	    open(app.optionsUrl);
+        }
+    }
+
+    open('chrome://extensions/');
+};
+
+chrome.management.getAll(receiveAppList);
+chrome.omnibox.onInputChanged.addListener(inputChanged);
+chrome.omnibox.onInputEntered.addListener(inputEntered);
+
+
+</script>
+</html>

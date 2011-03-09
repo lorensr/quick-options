@@ -1,0 +1,16 @@
+{
+    "name": "Quick Options",
+    "description": "Opens options page of an extension or app from the address bar.",
+    "version": "1.0",
+    "background_page": "background.html",
+    "permissions": [
+	"management",
+	"tabs"
+    ],
+    "omnibox": {
+	"keyword": "opt"
+    },
+    "icons" : {
+	"16": "opt.png"
+    }
+}
