@@ -1,6 +1,6 @@
 {
     "name": "Quick Options",
-    "description": "Opens options page of an extension or app from the address bar.",
+    "description": "Opens the options page of an extension or app from the address bar. Type 'op', a space or tab, the name of the extension or app, and return.",
     "version": "1.0",
     "background_page": "background.html",
     "permissions": [
