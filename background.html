@@ -1,12 +1,12 @@
-<html>
 <script>
 
 var apps = {};
+var bestMatch;
 
 var receiveAppList = function(apps) {
     for (var i in apps) {
         var app = apps[i];
-        window.apps[app.id] = app;
+        window.apps[app.name] = app;
     }
 };
 
@@ -44,17 +44,15 @@ function buildSuggestion(matches, app) {
 	description += '<dim> - ' + app.description + '</dim>';
     }
     
-    suggestions.push( 
-        {
-	    "content": app.name,
-	    "description" : description
-        }
-    );
 
+    return {
+	'content': app.name,
+	'description' : description
+    };
 }
 
 var inputChanged = function(input, suggestionsCallback) {
-    if (input == "") {
+    if (input == '') {
         return;
     }
     
@@ -62,15 +60,17 @@ var inputChanged = function(input, suggestionsCallback) {
     var regex = buildRegex(input);
     
     for (var i in apps) {
-        var matches = app.name.match(regex);
+        var matches = i.match(regex);
+
         if (matches != null) {
 	    suggestions.push(buildSuggestion(matches.slice(1), apps[i]));
 	}
     }
     
     if (suggestions.length > 0) {
+	bestMatch = apps[suggestions[0].content].optionsUrl;
         chrome.omnibox.setDefaultSuggestion(
-            { description: suggestions[0].description }
+            { description: suggestions.shift().description }
 	);
         
     }
@@ -81,27 +81,31 @@ var inputChanged = function(input, suggestionsCallback) {
 function open(url) {
     chrome.tabs.create(
 	{
-	    'url': app.optionsUrl
+	    'url': url
 	}
     );
 }
 
 var inputEntered = function(name) {
+    if (name == '') {
+	open('chrome://extensions/');
+	return;
+    }
+    
     for (var i in apps) {
         var app = apps[i];
 
         if (app.name.toLowerCase() == name.toLowerCase()) {
 	    open(app.optionsUrl);
+	    return;
         }
     }
 
-    open('chrome://extensions/');
+    open(bestMatch);
 };
 
 chrome.management.getAll(receiveAppList);
 chrome.omnibox.onInputChanged.addListener(inputChanged);
 chrome.omnibox.onInputEntered.addListener(inputEntered);
 
-
 </script>
-</html>
