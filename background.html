@@ -96,7 +96,12 @@ var inputEntered = function(name) {
         var app = apps[i];
 
         if (app.name.toLowerCase() == name.toLowerCase()) {
-	    open(app.optionsUrl);
+	    if (app.optionsUrl == '') {
+		open('chrome://extensions/');
+	    }
+	    else {
+		open(app.optionsUrl);
+	    }
 	    return;
         }
     }

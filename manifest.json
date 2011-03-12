@@ -11,6 +11,8 @@
 	"keyword": "opt"
     },
     "icons" : {
-	"16": "opt.png"
+	"16": "opt.png",
+	"48": "opt-48px.png",
+	"128": "opt-128px.png"
     }
 }
