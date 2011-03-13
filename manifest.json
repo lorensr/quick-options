@@ -1,7 +1,7 @@
 {
     "name": "Quick Options",
     "description": "Opens the options page of an extension or app from the address bar (type 'opt').",
-    "version": "1.1",
+    "version": "1.2",
     "background_page": "background.html",
     "permissions": [
 	"management",
