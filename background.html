@@ -19,22 +19,37 @@ function buildRegex(input) {
     return new RegExp(regex, 'i');
 }
 
+function minPositive(x, y) {
+    if (x < 0) {
+	return y;
+    } else if (y < 0) {
+	return x;
+    } else {
+	return Math.min(x, y);
+    }
+}
+
 function insertMatches(matches, name) {
     var styledName = '';
-    var nextChar = 0;
+    var nextCharIndex = 0;
     
     for (var i in matches) {
 	var match = matches[i];
-	var remainder = name.substring(nextChar);
-	var matchIndex = remainder.indexOf(match) + nextChar;
-	styledName += name.substring(nextChar, matchIndex);
-	nextChar = matchIndex + match.length;
+	var remainder = name.substring(nextCharIndex);
+	var minIndex = minPositive(
+	    remainder.indexOf(match.toLowerCase()),
+	    remainder.indexOf(match.toUpperCase())
+	);
+	var matchIndex = minIndex + nextCharIndex;
+	styledName += name.substring(nextCharIndex, matchIndex);
+	nextCharIndex = matchIndex + match.length;
+
 	styledName += '<match>';
-	styledName += name.substring(matchIndex, nextChar);
+	styledName += name.substring(matchIndex, nextCharIndex);
 	styledName += '</match>';
     }
 
-    return styledName + name.substring(nextChar);
+    return styledName + name.substring(nextCharIndex);
 }
 
 function buildSuggestion(matches, app) {
@@ -49,6 +64,15 @@ function buildSuggestion(matches, app) {
 	'content': app.name,
 	'description' : description
     };
+}
+
+function setDefaultSuggestion(suggestions) {
+    if (suggestions.length > 0) {
+	bestMatch = apps[suggestions[0].content].optionsUrl;
+        chrome.omnibox.setDefaultSuggestion(
+            { description: suggestions.shift().description }
+	);
+    }
 }
 
 var inputChanged = function(input, suggestionsCallback) {
@@ -67,14 +91,7 @@ var inputChanged = function(input, suggestionsCallback) {
 	}
     }
     
-    if (suggestions.length > 0) {
-	bestMatch = apps[suggestions[0].content].optionsUrl;
-        chrome.omnibox.setDefaultSuggestion(
-            { description: suggestions.shift().description }
-	);
-        
-    }
-
+    setDefaultSuggestion(suggestions);
     suggestionsCallback(suggestions);
 };
 
